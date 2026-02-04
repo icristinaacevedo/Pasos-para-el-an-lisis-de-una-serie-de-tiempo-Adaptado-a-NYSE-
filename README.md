@@ -45,7 +45,7 @@ time_series_nyse/
     └── metodologia.md
 ```
 
-## 🚀 Inicio Rápido
+## Inicio Rápido
 
 ### Prerrequisitos
 
@@ -72,7 +72,7 @@ source("requirements.txt")
 source("main.R")
 ```
 
-## 📊 Pasos del Análisis
+## Pasos del Análisis
 
 ### Paso 1: Carga y Exploración Inicial
 - Carga de la serie NYSE
@@ -146,7 +146,7 @@ source("main.R")
 
 **Script:** `scripts/10_evaluacion.R`
 
-## 📦 Paquetes de R Utilizados
+## Paquetes de R Utilizados
 
 - `forecast`: Modelos de pronóstico automático
 - `tseries`: Pruebas de estacionariedad
@@ -156,7 +156,7 @@ source("main.R")
 - `knitr`: Generación de reportes
 - `dplyr`: Manipulación de datos
 
-## 📈 Resultados
+##  Resultados
 
 Los resultados del análisis se guardan en:
 - **Gráficos:** `figures/`
@@ -199,7 +199,7 @@ Los resultados del análisis se guardan en:
 - [CRAN Time Series Task View](https://cran.r-project.org/web/views/TimeSeries.html)
 - [Forecasting: Principles and Practice](https://otexts.com/fpp3/)
 
-## 🤝 Contribuciones
+##  Contribuciones
 
 Las contribuciones son bienvenidas. Por favor:
 1. Haz fork del repositorio
@@ -208,7 +208,7 @@ Las contribuciones son bienvenidas. Por favor:
 4. Push a la rama (`git push origin feature/NuevaCaracteristica`)
 5. Abre un Pull Request
 
-## 📝 Licencia
+##  Licencia
 
 Este proyecto está bajo licencia MIT. Ver archivo `LICENSE` para más detalles.
 
