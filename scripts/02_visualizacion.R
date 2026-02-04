@@ -26,9 +26,9 @@ library(timeDate)
 
 # Gráfico principal
 p1 <- ggplot(df_nyse, aes(x = Fecha, y = Valor)) +
-  geom_line(color = COLOR_PRIMARY, linewidth = 1) +
+  geom_line(color = COLOR_PRIMARY, linewidth = 1) +  # ← CAMBIO AQUÍ
   geom_smooth(method = "lm", se = TRUE, color = COLOR_ACCENT, 
-              linetype = "dashed", linewidth = 0.8) +
+            linetype = "dashed", linewidth = 0.8) +  # ← CAMBIO AQUÍ +
   labs(
     title = "Serie Temporal NYSE (1984-1991)",
     subtitle = "Retornos diarios del New York Stock Exchange",
@@ -40,7 +40,7 @@ p1 <- ggplot(df_nyse, aes(x = Fecha, y = Valor)) +
 ggsave(file.path(DIR_FIGURES, "02_serie_temporal.png"), 
        p1, width = GRAPH_WIDTH, height = GRAPH_HEIGHT/1.5, dpi = GRAPH_DPI)
 
-cat("✅ Gráfico de serie temporal guardado\n\n")
+cat("Gráfico de serie temporal guardado\n\n")
 
 # ==============================================================================
 # GRÁFICO 2: PANEL DE VISUALIZACIONES MÚLTIPLES
@@ -217,7 +217,7 @@ if (frequency(nyse) > 1) {
   cat("✅ Subseries plot guardado\n\n")
 } else {
   cat("   ⚠️  Serie no tiene estacionalidad definida (frecuencia = 1)\n")
-  cat("   Saltando subseries plot (requiere datos estacionales)\n\n")
+  cat("   Saltando subseries plot (solo aplicable a datos estacionales)\n\n")
 }
 
 # ==============================================================================
@@ -236,7 +236,7 @@ cat("  5. Lag plot\n")
 if (frequency(nyse) > 1) {
   cat("  6. Subseries plot\n")
 } else {
-  cat("  6. Subseries plot (omitido - datos no estacionales)\n")
+  cat("  6. Subseries plot (omitido - serie no estacional)\n")
 }
 cat(rep("=", 80), "\n", sep = "")
 cat("\n")

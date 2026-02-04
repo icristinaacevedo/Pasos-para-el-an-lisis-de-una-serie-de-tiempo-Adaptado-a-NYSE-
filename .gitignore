@@ -3,6 +3,8 @@
 .RData
 .Rproj.user
 *.Rproj
+.NYSE:R
+.nyse.csv
 
 # Output files
 *.png

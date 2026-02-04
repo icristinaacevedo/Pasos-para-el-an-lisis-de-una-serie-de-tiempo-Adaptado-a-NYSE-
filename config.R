@@ -19,7 +19,7 @@ DIR_DATA <- file.path(DIR_ROOT, "data")
 DIR_OUTPUTS <- file.path(DIR_ROOT, "outputs")
 DIR_FIGURES <- file.path(DIR_ROOT, "figures")
 DIR_DOCS <- file.path(DIR_ROOT, "docs")
-DIR_NOTEBOOK <- file.path(DIR_ROOT, "notebooks")
+#DIR_NOTEBOOK <- file.path(DIR_ROOT, "notebooks")
 
 # Subdirectorios de outputs
 DIR_TABLAS <- file.path(DIR_OUTPUTS, "tablas")
@@ -71,13 +71,13 @@ THEME_CUSTOM <- theme_minimal() +
 # ==============================================================================
 
 # Parámetros para análisis de series temporales
-PERIODO_ESTACIONAL <- 12  # Frecuencia estacional (12 para datos mensuales)
+PERIODO_ESTACIONAL <- NA  # Frecuencia estacional (12 para datos mensuales) 
 NIVEL_CONFIANZA <- 0.95   # Nivel de confianza para intervalos
-MAX_LAGS_ACF <- 40        # Número máximo de rezagos en ACF/PACF
-VENTANA_MOVIL <- 12       # Ventana para medias móviles
+MAX_LAGS_ACF <- 30        # Número máximo de rezagos en ACF/PACF
+VENTANA_MOVIL <- 21       # Ventana para medias móviles
 
 # Horizonte de pronóstico
-HORIZONTE_PRONOSTICO <- 24  # Número de períodos a pronosticar
+HORIZONTE_PRONOSTICO <- 20  # Número de períodos a pronosticar
 
 # División train/test
 PROPORCION_TRAIN <- 0.8  # 80% para entrenamiento, 20% para prueba
@@ -177,7 +177,6 @@ mostrar_info_config <- function() {
   cat(sprintf("  • Datos: %s\n", DIR_DATA))
   cat(sprintf("  • Outputs: %s\n", DIR_OUTPUTS))
   cat(sprintf("  • Figuras: %s\n", DIR_FIGURES))
-  cat(sprintf("  • Notebooks: %s\n", DIR_FIGURES))
   cat("\n")
   cat("🔧 Parámetros de análisis:\n")
   cat(sprintf("  • Período estacional: %d\n", PERIODO_ESTACIONAL))
@@ -197,8 +196,8 @@ mostrar_info_config <- function() {
 # Mensaje de bienvenida
 cat("\n")
 separador("ANÁLISIS DE SERIES TEMPORALES - NYSE")
-cat("\n✅ Configuración cargada exitosamente\n\n")
-cat("💡 Usa mostrar_info_config() para ver todos los parámetros\n\n")
+cat("\nConfiguración cargada exitosamente\n\n")
+cat(" Usa mostrar_info_config() para ver todos los parámetros\n\n")
 
 
 

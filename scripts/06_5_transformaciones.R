@@ -15,8 +15,8 @@ library(forecast)
 cat(" Explorando transformaciones de la serie...\n\n")
 
 # Crear serie temporal si no existe
-if (!exists("NYSE")) {
-  NYSE <- ts(df_nyse$Valor, frequency = 252)
+if (!exists("nyse")) {
+  nyse <- ts(df_nyse$Valor, frequency = 252)
 }
 
 # ==============================================================================
@@ -26,25 +26,34 @@ if (!exists("NYSE")) {
 cat("🔄 1. TRANSFORMACIÓN LOGARÍTMICA\n")
 cat(rep("-", 80), "\n", sep = "")
 
-# Verificar que todos los valores sean positivos
-if (any(df_nyse$Valor <= 0, na.rm = TRUE)) {
-  cat("⚠️  La serie contiene valores no positivos\n")
-  cat("   Ajustando serie antes de aplicar log...\n")
-  min_val <- min(df_nyse$Valor, na.rm = TRUE)
-  NYSE_log <- log(df_nyse$Valor - min_val + 0.001)
+# Inicializar SIEMPRE el objeto (regla clave)
+nyse_log_ts <- NULL
+nyse_log    <- NULL
+
+valores_no_positivos <- sum(nyse <= 0)
+
+if (valores_no_positivos > 0) {
+
+  cat(sprintf("⚠️  La serie contiene %d valores no positivos\n", valores_no_positivos))
+  min_valor <- min(nyse)
+  nyse_ajustado <- nyse - min_valor + 0.001
+
+  nyse_log <- suppressWarnings(log(nyse_ajustado))
+
 } else {
-  NYSE_log <- log(df_nyse$Valor)
+
+  nyse_log <- log(nyse)
+
 }
 
-NYSE_log_ts <- ts(NYSE_log, frequency = 252)
+# Crear SIEMPRE la serie ts
+nyse_log_ts <- ts(nyse_log, frequency = 252)
 
-cat(sprintf("Media original:      %.6f\n", mean(df_nyse$Valor, na.rm = TRUE)))
-cat(sprintf("SD original:         %.6f\n", sd(df_nyse$Valor, na.rm = TRUE)))
-cat(sprintf("Media log:           %.6f\n", mean(NYSE_log, na.rm = TRUE)))
-cat(sprintf("SD log:              %.6f\n", sd(NYSE_log, na.rm = TRUE)))
+cat(sprintf("Media original: %.6f | Media log: %.6f\n",
+            mean(nyse, na.rm = TRUE),
+            mean(nyse_log, na.rm = TRUE)))
 
-# Guardar
-guardar_modelo(NYSE_log_ts, "nyse_log.rds")
+guardar_modelo(nyse_log_ts, "nyse_log.rds")
 
 # ==============================================================================
 # 2. TRANSFORMACIÓN BOX-COX
@@ -53,44 +62,28 @@ guardar_modelo(NYSE_log_ts, "nyse_log.rds")
 cat("\n🔄 2. TRANSFORMACIÓN BOX-COX\n")
 cat(rep("-", 80), "\n", sep = "")
 
-# Asegurar que todos los valores sean positivos
-if (any(df_nyse$Valor <= 0, na.rm = TRUE)) {
-  NYSE_positive <- df_nyse$Valor - min(df_nyse$Valor, na.rm = TRUE) + 0.001
+# Box-Cox requiere valores positivos
+if (valores_no_positivos > 0) {
+  nyse_boxcox_input <- nyse - min(nyse) + 0.001
+  cat("   Serie ajustada para Box-Cox (valores positivos)\n")
 } else {
-  NYSE_positive <- df_nyse$Valor
+  nyse_boxcox_input <- nyse
 }
 
-# Encontrar lambda óptimo
-tryCatch({
-  lambda_bc <- BoxCox.lambda(NYSE_positive, method = "loglik")
-  cat(sprintf("Lambda óptimo:       %.4f\n", lambda_bc))
-  
-  # Aplicar transformación
-  NYSE_boxcox <- BoxCox(NYSE_positive, lambda = lambda_bc)
-  NYSE_boxcox_ts <- ts(NYSE_boxcox, frequency = 252)
-  
-  cat(sprintf("Media Box-Cox:       %.6f\n", mean(NYSE_boxcox, na.rm = TRUE)))
-  cat(sprintf("SD Box-Cox:          %.6f\n", sd(NYSE_boxcox, na.rm = TRUE)))
-  
-  # Guardar
-  guardar_modelo(NYSE_boxcox_ts, "nyse_boxcox.rds")
-  guardar_modelo(lambda_bc, "lambda_boxcox.rds")
-  
-  cat("\n💡 Interpretación de lambda:\n")
-  if (abs(lambda_bc - 0) < 0.1) {
-    cat("   λ ≈ 0 → Transformación logarítmica recomendada\n")
-  } else if (abs(lambda_bc - 0.5) < 0.1) {
-    cat("   λ ≈ 0.5 → Transformación de raíz cuadrada recomendada\n")
-  } else if (abs(lambda_bc - 1) < 0.1) {
-    cat("   λ ≈ 1 → No se necesita transformación\n")
-  } else {
-    cat(sprintf("   λ = %.4f → Transformación Box-Cox específica\n", lambda_bc))
-  }
-  
-}, error = function(e) {
-  cat("Error al calcular Box-Cox:", e$message, "\n")
-  lambda_bc <- NULL
-})
+# Estimar lambda óptimo
+lambda_bc <- BoxCox.lambda(nyse_boxcox_input, method = "loglik")
+cat(sprintf("Lambda óptimo:       %.4f\n", lambda_bc))
+
+# Aplicar transformación
+nyse_boxcox <- BoxCox(nyse_boxcox_input, lambda = lambda_bc)
+nyse_boxcox_ts <- ts(nyse_boxcox, frequency = 252)
+
+cat(sprintf("Media Box-Cox:       %.6f\n", mean(nyse_boxcox, na.rm = TRUE)))
+cat(sprintf("SD Box-Cox:          %.6f\n", sd(nyse_boxcox, na.rm = TRUE)))
+
+# Guardar
+guardar_modelo(nyse_boxcox_ts, "nyse_boxcox.rds")
+guardar_modelo(lambda_bc, "lambda_boxcox.rds")
 
 # ==============================================================================
 # 3. TRANSFORMACIÓN DE RAÍZ CUADRADA
@@ -99,19 +92,19 @@ tryCatch({
 cat("\n🔄 3. TRANSFORMACIÓN DE RAÍZ CUADRADA\n")
 cat(rep("-", 80), "\n", sep = "")
 
-if (any(df_nyse$Valor < 0, na.rm = TRUE)) {
+if (valores_no_positivos > 0) {
   cat("⚠️  Serie contiene valores negativos, ajustando...\n")
-  NYSE_sqrt <- sqrt(df_nyse$Valor - min(df_nyse$Valor, na.rm = TRUE))
+  nyse_sqrt <- sqrt(nyse - min(nyse) + 0.001)
 } else {
-  NYSE_sqrt <- sqrt(df_nyse$Valor)
+  nyse_sqrt <- sqrt(nyse)
 }
 
-NYSE_sqrt_ts <- ts(NYSE_sqrt, frequency = 252)
+nyse_sqrt_ts <- ts(nyse_sqrt, frequency = 252)
 
-cat(sprintf("Media sqrt:          %.6f\n", mean(NYSE_sqrt, na.rm = TRUE)))
-cat(sprintf("SD sqrt:             %.6f\n", sd(NYSE_sqrt, na.rm = TRUE)))
+cat(sprintf("Media sqrt:          %.6f\n", mean(nyse_sqrt, na.rm = TRUE)))
+cat(sprintf("SD sqrt:             %.6f\n", sd(nyse_sqrt, na.rm = TRUE)))
 
-guardar_modelo(NYSE_sqrt_ts, "nyse_sqrt.rds")
+guardar_modelo(nyse_sqrt_ts, "nyse_sqrt.rds")
 
 # ==============================================================================
 # 4. COMPARACIÓN VISUAL DE TRANSFORMACIONES
@@ -125,20 +118,20 @@ png(file.path(DIR_FIGURES, "06_5_transformaciones_comparacion.png"),
 par(mfrow = c(4, 2))
 
 # Serie original
-plot(NYSE, main = "Serie Original", ylab = "Valor", col = COLOR_PRIMARY)
+plot(nyse, main = "Serie Original", ylab = "Valor", col = COLOR_PRIMARY)
 hist(df_nyse$Valor, breaks = 30, main = "Distribución Original", 
      xlab = "Valor", col = "lightblue", border = "white")
 
 # Log
-plot(NYSE_log_ts, main = "Transformación Logarítmica", ylab = "log(Valor)", col = COLOR_SECONDARY)
-hist(NYSE_log, breaks = 30, main = "Distribución Log", 
+plot(nyse_log_ts, main = "Transformación Logarítmica", ylab = "log(Valor)", col = COLOR_SECONDARY)
+hist(nyse_log, breaks = 30, main = "Distribución Log", 
      xlab = "log(Valor)", col = "lightgreen", border = "white")
 
 # Box-Cox (si existe)
 if (!is.null(lambda_bc)) {
-  plot(NYSE_boxcox_ts, main = sprintf("Box-Cox (λ=%.4f)", lambda_bc), 
+  plot(nyse_boxcox_ts, main = sprintf("Box-Cox (λ=%.4f)", lambda_bc), 
        ylab = "Valor transformado", col = COLOR_SUCCESS)
-  hist(NYSE_boxcox, breaks = 30, main = "Distribución Box-Cox", 
+  hist(nyse_boxcox, breaks = 30, main = "Distribución Box-Cox", 
        xlab = "Valor transformado", col = "lightyellow", border = "white")
 } else {
   plot(1, type = "n", axes = FALSE, xlab = "", ylab = "")
@@ -147,9 +140,9 @@ if (!is.null(lambda_bc)) {
 }
 
 # Sqrt
-plot(NYSE_sqrt_ts, main = "Transformación Raíz Cuadrada", 
+plot(nyse_sqrt_ts, main = "Transformación Raíz Cuadrada", 
      ylab = "sqrt(Valor)", col = COLOR_WARNING)
-hist(NYSE_sqrt, breaks = 30, main = "Distribución Sqrt", 
+hist(nyse_sqrt, breaks = 30, main = "Distribución Sqrt", 
      xlab = "sqrt(Valor)", col = "lightcoral", border = "white")
 
 par(mfrow = c(1, 1))
@@ -180,14 +173,14 @@ test_normalidad <- function(datos, nombre) {
 # Realizar pruebas
 resultados_normalidad <- rbind(
   test_normalidad(df_nyse$Valor, "Original"),
-  test_normalidad(NYSE_log, "Logarítmica"),
-  test_normalidad(NYSE_sqrt, "Raíz Cuadrada")
+  test_normalidad(nyse_log, "Logarítmica"),
+  test_normalidad(nyse_sqrt, "Raíz Cuadrada")
 )
 
 if (!is.null(lambda_bc)) {
   resultados_normalidad <- rbind(
     resultados_normalidad,
-    test_normalidad(NYSE_boxcox, sprintf("Box-Cox (λ=%.2f)", lambda_bc))
+    test_normalidad(nyse_boxcox, sprintf("Box-Cox (λ=%.2f)", lambda_bc))
   )
 }
 
@@ -208,8 +201,8 @@ library(zoo)
 ventana <- 20
 
 var_original <- rollapply(df_nyse$Valor, width = ventana, FUN = var, fill = NA)
-var_log <- rollapply(NYSE_log, width = ventana, FUN = var, fill = NA)
-var_sqrt <- rollapply(NYSE_sqrt, width = ventana, FUN = var, fill = NA)
+var_log <- rollapply(nyse_log, width = ventana, FUN = var, fill = NA)
+var_sqrt <- rollapply(nyse_sqrt, width = ventana, FUN = var, fill = NA)
 
 # Coeficiente de variación de la varianza (indicador de estabilidad)
 cv_var_original <- sd(var_original, na.rm = TRUE) / mean(var_original, na.rm = TRUE)
@@ -221,7 +214,7 @@ cat(sprintf("CV varianza log:          %.4f\n", cv_var_log))
 cat(sprintf("CV varianza sqrt:         %.4f\n", cv_var_sqrt))
 
 if (!is.null(lambda_bc)) {
-  var_boxcox <- rollapply(NYSE_boxcox, width = ventana, FUN = var, fill = NA)
+  var_boxcox <- rollapply(nyse_boxcox, width = ventana, FUN = var, fill = NA)
   cv_var_boxcox <- sd(var_boxcox, na.rm = TRUE) / mean(var_boxcox, na.rm = TRUE)
   cat(sprintf("CV varianza Box-Cox:      %.4f\n", cv_var_boxcox))
 }

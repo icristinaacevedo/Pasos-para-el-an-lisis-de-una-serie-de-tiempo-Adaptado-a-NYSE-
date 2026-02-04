@@ -91,18 +91,18 @@ mostrar_info_config()
 
 # Opciones de ejecución (cambiar a FALSE para omitir pasos)
 EJECUTAR <- list(
-  paso_01 = TRUE,  # Carga y exploración inicial
-  paso_02 = TRUE,  # Visualización
-  paso_03 = FALSE,  # Descomposición
-  paso_04 = TRUE,  # Estacionariedad
-  paso_05 = TRUE,  # Autocorrelación
-  paso_06 = TRUE,  # Diferenciación
-  paso_06_5 = TRUE,
-  paso_07 = TRUE,  # Identificación del modelo
-  paso_08 = TRUE,  # Diagnóstico
-  paso_09 = TRUE,  # Pronóstico
+  paso_01 = TRUE,   # Carga y exploración inicial
+  paso_02 = TRUE,   # Visualización
+  paso_03 = FALSE,  # Descomposición (omitir para datos diarios)
+  paso_04 = TRUE,   # Estacionariedad
+  paso_05 = TRUE,   # Autocorrelación
+  paso_06 = TRUE,   # Diferenciación
+  paso_6_5 = TRUE,  # Transformaciones ← CAMBIO AQUÍ
+  paso_07 = FALSE,   # Identificación del modelo
+  paso_08 = TRUE,   # Diagnóstico
+  paso_09 = TRUE,   # Pronóstico
   paso_10 = TRUE,   # Evaluación
-  paaso_11= TRUE
+  paso_11 = TRUE    # Modelos de volatilidad ← CAMBIO AQUÍ (era paaso_11)
 )
 
 # Pausar entre pasos (útil para revisión)
@@ -113,10 +113,18 @@ PAUSAR_ENTRE_PASOS <- FALSE
 # ==============================================================================
 
 ejecutar_paso <- function(numero, nombre, archivo) {
-  paso_id <- paste0("paso_", sprintf("%02d", numero))
+  # Manejar pasos con decimales (ej: 6.5) ← AGREGAR ESTA SECCIÓN
+  if (numero == floor(numero)) {
+    # Es entero
+    paso_id <- paste0("paso_", sprintf("%02d", numero))
+  } else {
+    # Tiene decimales, reemplazar punto por guion bajo
+    paso_id <- paste0("paso_", gsub("\\.", "_", as.character(numero)))
+  }
   
   if (EJECUTAR[[paso_id]]) {
-    separador(sprintf("PASO %d: %s", numero, nombre))
+    # Usar %.1f en lugar de %d para soportar decimales ← CAMBIO AQUÍ
+    separador(sprintf("PASO %.1f: %s", numero, nombre))
     cat("\n")
     cat(sprintf("📂 Ejecutando: %s\n", archivo))
     cat("\n")
@@ -130,25 +138,28 @@ ejecutar_paso <- function(numero, nombre, archivo) {
       duracion <- difftime(tiempo_paso_fin, tiempo_paso_inicio, units = "secs")
       
       cat("\n")
-      cat(sprintf("✅ Paso %d completado exitosamente (%.2f segundos)\n", 
+      # Usar %.1f aquí también ← CAMBIO AQUÍ
+      cat(sprintf("✅ Paso %.1f completado exitosamente (%.2f segundos)\n", 
                   numero, as.numeric(duracion)))
       cat("\n")
       
-      # Pausar si está configurado
-      if (PAUSAR_ENTRE_PASOS && numero < 10) {
+      # Cambiar condición a 11 ← CAMBIO AQUÍ
+      if (PAUSAR_ENTRE_PASOS && numero < 11) {
         cat("⏸️  Presiona ENTER para continuar...")
         readline()
       }
       
     }, error = function(e) {
       cat("\n")
-      cat(sprintf("❌ ERROR en Paso %d: %s\n", numero, e$message))
+      # Usar %.1f aquí también ← CAMBIO AQUÍ
+      cat(sprintf("❌ ERROR en Paso %.1f: %s\n", numero, e$message))
       cat("\n")
-      stop(sprintf("Ejecución detenida en Paso %d", numero))
+      stop(sprintf("Ejecución detenida en Paso %.1f", numero))
     })
     
   } else {
-    cat(sprintf("⏭️  Paso %d omitido (deshabilitado en configuración)\n\n", numero))
+    # Usar %.1f aquí también ← CAMBIO AQUÍ
+    cat(sprintf("⏭️  Paso %.1f omitido (deshabilitado en configuración)\n\n", numero))
   }
 }
 
@@ -206,8 +217,8 @@ ejecutar_paso(
 #PASO 6_5: transformaciones
 ejecutar_paso(
   numero = 6.5,
-  nombre = "Evaluación del Modelo",
-  archivo = "06_5_transformacioes.R"
+  nombre = "Transformaciones de la Serie",
+  archivo = "06_5_transformaciones.R"  # ← CORREGIR NOMBRE (era transformacioes)
 )
 
 # PASO 7: Identificación del Modelo

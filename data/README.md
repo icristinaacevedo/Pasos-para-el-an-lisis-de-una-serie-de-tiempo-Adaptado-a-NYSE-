@@ -7,7 +7,7 @@ Esta carpeta contiene los datos utilizados en el análisis.
 La serie NYSE se carga directamente desde R usando:
 
 ```r
-data(NYSE)
+data(nyse)
 ```
 
 **Descripción:**

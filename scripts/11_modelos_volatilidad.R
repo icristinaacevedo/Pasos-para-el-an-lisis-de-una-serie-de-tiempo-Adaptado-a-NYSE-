@@ -82,27 +82,25 @@ print(fit_garch11_t)
 
 guardar_modelo(fit_garch11_t, "garch_11_tstudent.rds")
 
+
+#para este análisis se debería forzar a ser positivo, se quedda como posible anállis de otra serie
 # ==============================================================================
-# 4. MODELO EGARCH(1,1)
+# 🔧 4. MODELO EGARCH(1,1) (Captura asimetría)
 # ==============================================================================
 
-cat("\n")
-cat("🔧 4. MODELO EGARCH(1,1) (Captura asimetría)\n")
-cat(rep("-", 80), "\n", sep = "")
+# spec_egarch11 <- ugarchspec(
+#   variance.model = list(model = "eGARCH", garchOrder = c(1, 1)),
+#   mean.model = list(armaOrder = c(0, 0), include.mean = TRUE),
+#   distribution.model = "std"
+# )
 
-spec_egarch11 <- ugarchspec(
-  variance.model = list(model = "eGARCH", garchOrder = c(1, 1)),
-  mean.model = list(armaOrder = c(0, 0), include.mean = TRUE),
-  distribution.model = "std"
-)
+# cat("Ajustando EGARCH(1,1)...\n")
+# fit_egarch11 <- ugarchfit(spec = spec_egarch11, data = retornos)
 
-cat("Ajustando EGARCH(1,1)...\n")
-fit_egarch11 <- ugarchfit(spec = spec_egarch11, data = retornos)
+# cat("\nResultados EGARCH(1,1):\n")
+# print(fit_egarch11)
 
-cat("\nResultados EGARCH(1,1):\n")
-print(fit_egarch11)
-
-guardar_modelo(fit_egarch11, "egarch_11.rds")
+# guardar_modelo(fit_egarch11, "egarch_11.rds")
 
 # ==============================================================================
 # 5. MODELO GJR-GARCH(1,1)
@@ -127,26 +125,27 @@ print(fit_gjrgarch11)
 guardar_modelo(fit_gjrgarch11, "gjrgarch_11.rds")
 
 # ==============================================================================
-# 6. ARMA(1,1)-GARCH(1,1)
+# 6. AR(1)-GARCH(1,1)
 # ==============================================================================
 
 cat("\n")
-cat("🔧 6. MODELO ARMA(1,1)-GARCH(1,1)\n")
+cat("🔧 6. MODELO AR(1)-GARCH(1,1)\n")
 cat(rep("-", 80), "\n", sep = "")
 
-spec_armagarch <- ugarchspec(
-  variance.model = list(model = "sGARCH", garchOrder = c(1, 1)),
-  mean.model = list(armaOrder = c(1, 1), include.mean = TRUE),
+
+spec_ar1garch <- ugarchspec(
+  variance.model = list(model="sGARCH", garchOrder=c(1,1)),
+  mean.model = list(armaOrder=c(1,0), include.mean=TRUE),
   distribution.model = "std"
 )
 
-cat("Ajustando ARMA(1,1)-GARCH(1,1)...\n")
-fit_armagarch <- ugarchfit(spec = spec_armagarch, data = retornos)
+cat("Ajustando AR(1)-GARCH(1,1)...\n")
+fit_ar1garch <- ugarchfit(spec = spec_ar1garch, data = retornos)
 
-cat("\nResultados ARMA(1,1)-GARCH(1,1):\n")
-print(fit_armagarch)
+cat("\nResultados AR(1)-GARCH(1,1):\n")
+print(fit_ar1garch)
 
-guardar_modelo(fit_armagarch, "arma_garch_11.rds")
+guardar_modelo(fit_ar1garch, "ar1_garch_11.rds")
 
 # ==============================================================================
 # 7. COMPARACIÓN DE MODELOS
@@ -157,24 +156,29 @@ cat("📊 COMPARACIÓN DE MODELOS GARCH\n")
 cat(rep("=", 80), "\n", sep = "")
 
 # Extraer criterios de información
+# Agresgar lo sigueite si considera EGARCH
+#"EGARCH(1,1)",
+#infocriteria(fit_egarch11)[1], 
+#infocriteria(fit_egarch11)[2],
+
 comparacion <- data.frame(
-  Modelo = c("GARCH(1,1) Normal", "GARCH(1,1) t-Student", "EGARCH(1,1)", 
-             "GJR-GARCH(1,1)", "ARMA(1,1)-GARCH(1,1)"),
+  Modelo = c("GARCH(1,1) Normal", "GARCH(1,1) t-Student",  
+             "GJR-GARCH(1,1)", "AR(1)-GARCH(1,1)"),
+
   AIC = c(
     infocriteria(fit_garch11)[1],
     infocriteria(fit_garch11_t)[1],
-    infocriteria(fit_egarch11)[1],
     infocriteria(fit_gjrgarch11)[1],
-    infocriteria(fit_armagarch)[1]
+    infocriteria(fit_ar1garch)[1]
   ),
   BIC = c(
     infocriteria(fit_garch11)[2],
     infocriteria(fit_garch11_t)[2],
-    infocriteria(fit_egarch11)[2],
     infocriteria(fit_gjrgarch11)[2],
-    infocriteria(fit_armagarch)[2]
-  )
+    infocriteria(fit_ar1garch)[2]
+  ) 
 )
+
 
 # Ordenar por AIC
 comparacion <- comparacion[order(comparacion$AIC), ]
@@ -207,7 +211,7 @@ if (mejor_modelo == "GARCH(1,1) Normal") {
 } else if (mejor_modelo == "GJR-GARCH(1,1)") {
   mejor_fit <- fit_gjrgarch11
 } else {
-  mejor_fit <- fit_armagarch
+  mejor_fit <- fit_ar1garch
 }
 
 # Residuos estandarizados
@@ -316,6 +320,8 @@ png(file.path(DIR_FIGURES, "11_pronostico_volatilidad.png"),
 plot(forecast_vol, which = 3)
 
 dev.off()
+
+
 
 # ==============================================================================
 # RESUMEN FINAL

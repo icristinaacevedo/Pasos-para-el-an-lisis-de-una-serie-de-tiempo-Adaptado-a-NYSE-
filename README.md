@@ -1,12 +1,13 @@
-# 📊 Análisis de Series Temporales - NYSE
+# Análisis de Series Temporales - NYSE
 
-Repositorio completo para el análisis de la serie temporal NYSE (New York Stock Exchange) utilizando R y Visual Studio Code.
+Repositorio para el análisis de una serie temporal asociada al New York Stock Exchange (NYSE), utilizando R y siguiendo la metodología Box–Jenkins, con extensión a modelos de volatilidad (GARCH).
 
-## 📋 Descripción del Proyecto
+## Descripción del Proyecto
 
-Este proyecto implementa un análisis completo de series temporales siguiendo las mejores prácticas de econometría y estadística. Se analizan datos mensuales de contribuciones del NYSE desde enero de 1962 hasta diciembre de 1975.
+Este proyecto implementa un análisis completo de series temporales con fines académicos. 
+Se analizan datos de retornos diarios del NYSE desde 2 de febreero de 1984 hasta 31 de   diciembre de 1991.
 
-## 🗂️ Estructura del Repositorio
+## Estructura del Repositorio
 
 ```
 time_series_nyse/
@@ -23,7 +24,7 @@ time_series_nyse/
 │   ├── 04_estacionariedad.R
 │   ├── 05_autocorrelacion.R
 │   ├── 06_diferenciacion.R
-│   ├── 06_5_diferenciacion.R
+│   ├── 06_5_transformacion.R
 │   ├── 07_identificacion_modelo.R
 │   ├── 08_diagnostico.R
 │   ├── 09_pronostico.R
@@ -56,7 +57,7 @@ time_series_nyse/
 
 1. Clona este repositorio:
 ```bash
-git clone <url-del-repositorio>
+git clone https://github.com/icristinaacevedo/Pasos-para-el-an-lisis-de-una-serie-de-tiempo-Adaptado-a-NYSE-
 cd time_series_nyse
 ```
 
@@ -217,4 +218,4 @@ Para preguntas o sugerencias, abre un issue en el repositorio.
 
 ---
 
-**Última actualización:** Enero 2026
+**Última actualización:** Febrero 2026

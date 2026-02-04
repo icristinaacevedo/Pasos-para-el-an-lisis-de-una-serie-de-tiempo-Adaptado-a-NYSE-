@@ -57,6 +57,7 @@ ventana <- 21  # 21 días de trading ≈ 1 mes
 media_movil <- rollmean(nyse, k = ventana, fill = NA)
 sd_movil <- rollapply(nyse, width = ventana, FUN = sd, fill = NA)
 
+
 png(file.path(DIR_FIGURES, "04_estacionariedad.png"), 
     width = GRAPH_WIDTH, height = GRAPH_HEIGHT, units = "in", res = GRAPH_DPI)
 

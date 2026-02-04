@@ -21,12 +21,12 @@ if (freq <= 1) {
   cat("💡 Alternativas para datos diarios:\n")
   cat("  1. Análisis de tendencia con medias móviles (ya realizado en Paso 2)\n")
   cat("  2. Modelos GARCH para volatilidad (Paso 11)\n")
-  cat("  3. Si hay patrones semanales/mensuales, convertir a serie semanal/mensual\n\n")
+  cat("  3. Si hay patrones semanales/mensuales, convertir a serie agregada\n\n")
   
-  cat("⏭️  Paso 3 OMITIDO: Descomposición no aplicable a datos diarios\n")
+  cat("⏭️  Paso 3 OMITIDO: Descomposición no aplicable a datos diarios\n\n")
   
 } else {
-  cat("\n✅ Serie tiene estacionalidad (frecuencia = %d)\n", freq)
+  cat(sprintf("\n✅ Serie tiene estacionalidad (frecuencia = %d)\n", freq))
   cat("Procediendo con descomposición...\n\n")
   
   # Descomposición aditiva
