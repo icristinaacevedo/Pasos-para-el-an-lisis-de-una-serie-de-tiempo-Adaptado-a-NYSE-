@@ -1,0 +1,31 @@
+# R files
+.Rhistory
+.RData
+.Rproj.user
+*.Rproj
+
+# Output files
+*.png
+*.pdf
+*.jpeg
+*.csv
+*.rds
+
+# Keep directory structure but ignore contents
+outputs/**/*
+!outputs/.gitkeep
+figures/**/*
+!figures/.gitkeep
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary files
+*~
+*.swp
+*.swo

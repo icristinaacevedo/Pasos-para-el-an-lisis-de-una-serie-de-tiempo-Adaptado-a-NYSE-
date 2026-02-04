@@ -1,0 +1,59 @@
+# ==============================================================================
+# INSTALACIÓN DE PAQUETES NECESARIOS PARA EL ANÁLISIS DE SERIES TEMPORALES
+# ==============================================================================
+#
+# Este script instala todos los paquetes de R necesarios para el análisis
+# completo de la serie temporal NYSE.
+#
+# Uso: source("requirements.txt")
+#
+
+cat("📦 Instalando paquetes necesarios para el análisis de series temporales...\n\n")
+
+# Lista de paquetes requeridos
+paquetes <- c(
+  "forecast",      # Modelos de pronóstico y herramientas ARIMA
+  "tseries",       # Pruebas de estacionariedad (ADF, KPSS)
+  "ggplot2",       # Visualización avanzada de datos
+  "zoo",           # Manipulación de series temporales
+  "gridExtra",     # Composición de múltiples gráficos
+  "dplyr",         # Manipulación de datos
+  "tidyr",         # Limpieza y transformación de datos
+  "knitr",         # Generación de reportes
+  "kableExtra",    # Tablas con formato mejorado
+  "scales",        # Escalas y formateo para gráficos
+  "lubridate",     # Manejo de fechas
+  "ggfortify"      # Extensión de ggplot2 para series temporales
+  "timeDate"
+)
+
+
+
+# Función para instalar paquetes faltantes
+instalar_si_falta <- function(paquete) {
+  if (!require(paquete, character.only = TRUE, quietly = TRUE)) {
+    cat(sprintf("  ⬇️  Instalando %s...\n", paquete))
+    install.packages(paquete, dependencies = TRUE, quiet = TRUE)
+    library(paquete, character.only = TRUE)
+    cat(sprintf("  ✅ %s instalado correctamente\n", paquete))
+  } else {
+    cat(sprintf("  ✓ %s ya está instalado\n", paquete))
+  }
+}
+
+# Instalar todos los paquetes
+cat("Verificando e instalando paquetes...\n\n")
+invisible(sapply(paquetes, instalar_si_falta))
+
+cat("\n✅ Todos los paquetes están instalados y listos para usar!\n")
+cat("\nPaquetes instalados:\n")
+cat(paste("  •", paquetes, collapse = "\n"))
+cat("\n")
+
+# Verificar versiones
+cat("\n📋 Versiones de paquetes clave:\n")
+cat(sprintf("  • forecast: %s\n", packageVersion("forecast")))
+cat(sprintf("  • tseries: %s\n", packageVersion("tseries")))
+cat(sprintf("  • ggplot2: %s\n", packageVersion("ggplot2")))
+
+cat("\n💡 Para comenzar el análisis, ejecuta: source('main.R')\n")
